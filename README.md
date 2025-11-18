@@ -1,6 +1,6 @@
 # 🎯 DartBuddy - Dart 501 Spiel Tracker
 
-Eine einfache, responsive Web-App zum Verfolgen von Dart 501 Spielen zwischen zwei Teams. Entwickelt mit React, Next.js und Tailwind CSS, optimiert für Azure Static Web Apps.
+Eine einfache responsive Web-App zum Verfolgen von Dart 501 Spielen zwischen zwei Teams. Entwickelt mit React, Next.js und Tailwind CSS, optimiert für Azure Static Web Apps.
 
 ## 🚀 Features
 
