@@ -13,13 +13,11 @@ Eine einfache responsive Web-App zum Verfolgen von Dart 501 Spielen zwischen zwe
 - ✅ **Fortschrittsanzeige**: Visuelle Darstellung des Spielfortschritts
 - ✅ **Spiel-Historie**: Zeigt die letzten 5 Würfe
 - ✅ **Responsive Design**: Funktioniert auf Desktop, Tablet und Smartphone
-- ✅ **API-Integration**: Mock API für Spielstand-Verwaltung
 
 ## 🛠️ Technologie-Stack
 
 - **Frontend**: React 18, Next.js 14, TypeScript
 - **Styling**: Tailwind CSS
-- **API**: Next.js API Routes
 - **Deployment**: Azure Static Web Apps
 
 ## 🏗️ Projekt-Struktur
@@ -32,8 +30,6 @@ dartbuddy/
 │   │   ├── ScoreInput.tsx      # Punkteeingabe-Komponente
 │   │   └── TeamCard.tsx        # Team-Anzeige-Komponente
 │   ├── pages/
-│   │   ├── api/
-│   │   │   └── game.ts         # Mock API für Spielstand
 │   │   ├── _app.tsx            # Next.js App-Komponente
 │   │   └── index.tsx           # Hauptseite
 │   └── styles/
@@ -103,7 +99,6 @@ npm run export   # Statischen Export erstellen
    - Wähle dein GitHub Repository aus
    - **Build-Konfiguration:**
      - **App location**: `/`
-     - **Api location**: `src/pages/api`
      - **Output location**: `out`
 
 3. **Automatisches Deployment**
@@ -191,9 +186,7 @@ npm run export   # Statischen Export erstellen
 ### Azure Static Web Apps Konfiguration
 
 Die Datei `staticwebapp.config.json` konfiguriert:
-- Routing für API-Endpunkte
 - Fallback-Handling für SPA
-- Node.js Runtime für API
 
 ### Next.js Konfiguration
 
@@ -213,10 +206,6 @@ npm install
 npm run build
 npm run export
 ```
-
-**Problem**: API-Routen funktionieren nicht
-- Prüfe `staticwebapp.config.json`
-- Stelle sicher, dass API-Dateien in `src/pages/api/` liegen
 
 **Problem**: Styling nicht korrekt
 ```bash
