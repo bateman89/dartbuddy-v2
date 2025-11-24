@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import TeamCard from '@/components/TeamCard'
+import CompactTeamCard from '@/components/CompactTeamCard'
 import ScoreInput from '@/components/ScoreInput'
+import NumberPad from '@/components/NumberPad'
 import GameControls from '@/components/GameControls'
 
 interface Team {
@@ -286,16 +288,6 @@ export default function Home() {
       
       <main className="min-h-screen dart-board p-4">
         <div className="container mx-auto max-w-4xl">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-2">
-              🎯 DartBuddy
-            </h1>
-            <p className="text-gray-300 text-lg">
-              Dart 501 Spiel Tracker
-            </p>
-          </div>
-
           {/* Gewinner Anzeige */}
           {gameWinner && (
             <div className="bg-green-500 text-white p-6 rounded-lg mb-6 text-center">
@@ -315,31 +307,92 @@ export default function Home() {
             </div>
           )}
 
-          {/* Teams */}
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
-            {teams.map(team => (
-              <TeamCard
-                key={team.id}
-                team={team}
-                isActive={team.id === activeTeamId && !gameWinner}
-                onNameChange={(newName) => updateTeamName(team.id, newName)}
-                stats={calculateTeamStats(team.id)}
-              />
-            ))}
-          </div>
+          {/* Hauptlayout: Portrait vs Landscape */}
+          <div className="landscape-layout">
+            {/* Portrait Layout (Hochformat - wie bisher) */}
+            <div className="block lg:hidden">
+              {/* Teams Portrait */}
+              <div className="grid gap-6 mb-8">
+                {teams.map(team => (
+                  <TeamCard
+                    key={team.id}
+                    team={team}
+                    isActive={team.id === activeTeamId && !gameWinner}
+                    onNameChange={(newName) => updateTeamName(team.id, newName)}
+                    stats={calculateTeamStats(team.id)}
+                  />
+                ))}
+              </div>
 
-          {/* Aktuelle Eingabe */}
-          {!gameWinner && activeTeam && (
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 mb-6">
-              <h3 className="text-white text-xl font-semibold mb-4 text-center">
-                {activeTeam.name} ist am Zug
-              </h3>
-              <ScoreInput
-                onScoreSubmit={(points) => updateTeamScore(activeTeamId, points)}
-                maxScore={activeTeam.score}
-              />
+              {/* Aktuelle Eingabe Portrait */}
+              {!gameWinner && activeTeam && (
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 mb-6">
+                  <h3 className="text-white text-xl font-semibold mb-4 text-center">
+                    {activeTeam.name} ist am Zug
+                  </h3>
+                  <ScoreInput
+                    onScoreSubmit={(points) => updateTeamScore(activeTeamId, points)}
+                    maxScore={activeTeam.score}
+                  />
+                </div>
+              )}
             </div>
-          )}
+
+            {/* Landscape Layout (Querformat - neue Turnierversion) */}
+            <div className="hidden lg:block">
+              <div className="grid grid-cols-12 gap-6 min-h-[80vh]">
+                {/* Linke Seite: Team-Übersicht (4 Spalten) */}
+                <div className="col-span-4 space-y-4">
+                  {teams.map(team => (
+                    <CompactTeamCard
+                      key={team.id}
+                      team={team}
+                      isActive={team.id === activeTeamId && !gameWinner}
+                      onNameChange={(newName) => updateTeamName(team.id, newName)}
+                      stats={calculateTeamStats(team.id)}
+                    />
+                  ))}
+
+                  {/* Spiel-Historie kompakt */}
+                  {gameHistory.length > 0 && (
+                    <div className="bg-gray-800/50 rounded-lg p-4">
+                      <h4 className="text-white font-semibold mb-2 text-center">
+                        Letzte Würfe
+                      </h4>
+                      <div className="space-y-1 max-h-32 overflow-y-auto">
+                        {gameHistory.slice(-5).reverse().map((entry, index) => {
+                          const team = teams.find(t => t.id === entry.teamId)
+                          return (
+                            <div key={index} className="text-xs text-gray-300 flex justify-between">
+                              <span>{team?.name}</span>
+                              <span className="font-semibold">{entry.points}p → {entry.newScore}</span>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Rechte Seite: Große Nummerntastatur (8 Spalten) */}
+                <div className="col-span-8 flex items-start">
+                  {!gameWinner && activeTeam ? (
+                    <NumberPad
+                      onScoreSubmit={(points) => updateTeamScore(activeTeamId, points)}
+                      maxScore={activeTeam.score}
+                      className="w-full"
+                    />
+                  ) : (
+                    <div className="w-full bg-gray-800/50 rounded-lg p-8 text-center">
+                      <div className="text-gray-400 text-xl">
+                        {gameWinner ? 'Spiel beendet' : 'Bereit zum Spielen'}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* Spiel Kontrollen */}
           <GameControls 
