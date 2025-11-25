@@ -99,8 +99,8 @@ export default function TeamCard({ team, isActive, onNameChange, stats }: TeamCa
           <div className="text-center text-white text-sm">
             <div className="grid grid-cols-3 gap-2 text-xs">
               <div>
-                <div className="font-semibold text-blue-300">{stats.totalThrows}</div>
-                <div className="text-gray-400">Würfe</div>
+                <div className="font-semibold text-blue-300">{stats.totalDarts}</div>
+                <div className="text-gray-400">Darts</div>
               </div>
               <div>
                 <div className="font-semibold text-green-300">{stats.totalPoints}</div>
@@ -108,31 +108,14 @@ export default function TeamCard({ team, isActive, onNameChange, stats }: TeamCa
               </div>
               <div>
                 <div className="font-semibold text-yellow-300">{stats.average}</div>
-                <div className="text-gray-400">⌀ Average</div>
+                <div className="text-gray-400">⌀ Avg</div>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Status Indicators */}
-      <div className="mt-4 text-center">
-        {team.score === 0 && (
-          <div className="bg-green-500 text-white px-4 py-2 rounded-full text-sm font-bold">
-            🎉 GEWONNEN! 🎉
-          </div>
-        )}
-        {team.score === 1 && (
-          <div className="bg-red-500 text-white px-4 py-2 rounded-full text-sm font-bold">
-            ⚠️ Bust möglich! ⚠️
-          </div>
-        )}
-        {team.score <= 50 && team.score > 1 && (
-          <div className="bg-yellow-500 text-white px-4 py-2 rounded-full text-sm font-bold">
-            🔥 Finish-Bereich! 🔥
-          </div>
-        )}
-      </div>
+
     </div>
   )
 }

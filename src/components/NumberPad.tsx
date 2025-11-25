@@ -1,13 +1,14 @@
 import { useState } from 'react'
 
 interface NumberPadProps {
-  onScoreSubmit: (points: number) => void
+  onScoreSubmit: (points: number, darts?: number) => void
   maxScore: number
   className?: string
 }
 
 export default function NumberPad({ onScoreSubmit, maxScore, className = '' }: NumberPadProps) {
   const [currentValue, setCurrentValue] = useState('')
+  const [dartsValue, setDartsValue] = useState('3')
   const [error, setError] = useState('')
 
   // Große Nummern-Buttons 0-9
@@ -38,7 +39,7 @@ export default function NumberPad({ onScoreSubmit, maxScore, className = '' }: N
     setError('')
   }
 
-  const handleSubmit = (points?: number) => {
+  const handleSubmit = (points?: number, darts?: number) => {
     const finalPoints = points !== undefined ? points : parseInt(currentValue)
     
     if (isNaN(finalPoints) || finalPoints < 0) {
@@ -58,7 +59,9 @@ export default function NumberPad({ onScoreSubmit, maxScore, className = '' }: N
 
     setError('')
     setCurrentValue('')
-    onScoreSubmit(finalPoints)
+    setDartsValue('3')
+    const dartCount = darts || parseInt(dartsValue) || 3
+    onScoreSubmit(finalPoints, dartCount)
   }
 
   return (

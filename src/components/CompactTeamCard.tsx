@@ -17,6 +17,7 @@ interface CompactTeamCardProps {
   isActive: boolean
   onNameChange: (newName: string) => void
   stats: TeamStats
+  gameHistory: Array<{teamId: number, points: number, newScore: number, darts?: number}>
   className?: string
 }
 
@@ -25,6 +26,7 @@ export default function CompactTeamCard({
   isActive, 
   onNameChange, 
   stats, 
+  gameHistory,
   className = '' 
 }: CompactTeamCardProps) {
   const [isEditingName, setIsEditingName] = useState(false)
@@ -46,8 +48,7 @@ export default function CompactTeamCard({
     }
   }
 
-  // Berechne Fortschritt
-  const progress = ((501 - team.score) / 501) * 100
+
 
   return (
     <div className={`bg-white/15 backdrop-blur-sm rounded-xl p-6 border-4 transition-all shadow-xl ${
@@ -79,70 +80,67 @@ export default function CompactTeamCard({
 
       </div>
 
-      {/* Riesige Score-Anzeige für Turnier-Sichtbarkeit */}
-      <div className="text-center mb-4 bg-black/30 rounded-lg py-6">
-        <div className="text-8xl font-black text-white mb-2 leading-none tracking-tight drop-shadow-lg">
-          {team.score}
-        </div>
-        <div className="text-white text-sm font-semibold">
-          Punkte verbleibend
-        </div>
-      </div>
-
-      {/* Status Indicators - Größer und auffälliger */}
-      <div className="mb-4">
-        {team.score === 0 && (
-          <div className="bg-green-500 text-white px-4 py-3 rounded-lg text-lg font-black text-center animate-pulse shadow-lg">
-            🎉 GEWONNEN! 🎉
+      {/* Score-Anzeige und Historie nebeneinander */}
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        {/* Linke Seite: Score-Anzeige */}
+        <div className="text-center bg-black/30 rounded-lg py-4">
+          <div className="text-6xl font-black text-white mb-1 leading-none tracking-tight drop-shadow-lg">
+            {team.score}
           </div>
-        )}
-        {team.score === 1 && (
-          <div className="bg-red-500 text-white px-4 py-3 rounded-lg text-lg font-black text-center shadow-lg animate-pulse">
-            ⚠️ BUST MÖGLICH! ⚠️
+          <div className="text-white text-xs font-semibold">
+            Punkte verbleibend
           </div>
-        )}
-        {team.score <= 50 && team.score > 1 && (
-          <div className="bg-yellow-500 text-black px-4 py-3 rounded-lg text-lg font-black text-center shadow-lg">
-            🔥 FINISH-BEREICH! 🔥
-          </div>
-        )}
-      </div>
-
-      {/* Progress Bar - Größer und auffälliger */}
-      <div className="mb-4">
-        <div className="w-full bg-gray-700 rounded-full h-4 shadow-inner">
-          <div 
-            className={`h-4 rounded-full transition-all duration-500 shadow-lg ${
-              progress >= 80 ? 'bg-gradient-to-r from-green-400 to-green-600' : 
-              progress >= 50 ? 'bg-gradient-to-r from-yellow-400 to-yellow-600' : 'bg-gradient-to-r from-red-400 to-red-600'
-            }`}
-            style={{ width: `${progress}%` }}
-          ></div>
         </div>
-        <div className="text-sm text-white font-semibold mt-2 text-center">
-          {Math.round(progress)}% geschafft
-        </div>
-      </div>
 
-      {/* Kompakte Statistiken - Besser lesbar */}
-      {stats.totalThrows > 0 && (
-        <div className="bg-black/30 rounded-lg p-3 border border-gray-600">
-          <div className="grid grid-cols-3 gap-2 text-center">
-            <div>
-              <div className="font-black text-blue-300 text-lg">{stats.totalThrows}</div>
-              <div className="text-white text-xs font-semibold">Würfe</div>
+        {/* Rechte Seite: Statistiken und Historie vertikal */}
+        <div className="space-y-2 flex flex-col">
+          {/* Kompakte Statistiken oben */}
+          {stats.totalThrows > 0 && (
+            <div className="bg-black/30 rounded-lg p-2 border border-gray-600">
+              <div className="grid grid-cols-3 gap-1 text-center">
+                <div>
+                  <div className="font-black text-blue-300 text-sm">{stats.totalDarts}</div>
+                  <div className="text-white text-xs font-semibold">Darts</div>
+                </div>
+                <div>
+                  <div className="font-black text-green-300 text-sm">{stats.totalPoints}</div>
+                  <div className="text-white text-xs font-semibold">Punkte</div>
+                </div>
+                <div>
+                  <div className="font-black text-yellow-300 text-sm">{stats.average}</div>
+                  <div className="text-white text-xs font-semibold">AVG</div>
+                </div>
+              </div>
             </div>
-            <div>
-              <div className="font-black text-green-300 text-lg">{stats.totalPoints}</div>
-              <div className="text-white text-xs font-semibold">Punkte</div>
-            </div>
-            <div>
-              <div className="font-black text-yellow-300 text-lg">{stats.average}</div>
-              <div className="text-white text-xs font-semibold">AVG</div>
+          )}
+          
+          {/* Wurf-Historie unten */}
+          <div className="bg-black/30 rounded-lg p-3 border border-gray-600 flex-1">
+            <h5 className="text-white text-xs font-semibold mb-2 text-center">Letzte Würfe</h5>
+            <div className="space-y-1">
+              {gameHistory.filter(entry => entry.teamId === team.id).length > 0 ? (
+                gameHistory.filter(entry => entry.teamId === team.id).slice(-8).map((entry, index) => (
+                  <div key={index} className="text-gray-300 text-xs bg-black/20 rounded p-1 text-center">
+                    <span className="font-bold text-blue-200">{entry.points}</span>
+                  </div>
+                ))
+              ) : (
+                <div className="text-gray-500 text-xs text-center italic py-2">
+                  Noch keine Würfe
+                </div>
+              )}
             </div>
           </div>
         </div>
-      )}
+      </div>
+
+
+
+
+
+
+
+
     </div>
   )
 }

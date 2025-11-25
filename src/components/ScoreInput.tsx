@@ -1,17 +1,18 @@
 import { useState } from 'react'
 
 interface ScoreInputProps {
-  onScoreSubmit: (points: number) => void
+  onScoreSubmit: (points: number, darts?: number) => void
   maxScore: number
 }
 
 export default function ScoreInput({ onScoreSubmit, maxScore }: ScoreInputProps) {
   const [inputValue, setInputValue] = useState('')
+  const [dartsValue, setDartsValue] = useState('3')
   const [error, setError] = useState('')
 
   const quickScoreButtons = [1, 5, 10, 15, 20, 25, 26, 30, 40, 45, 50, 60, 80, 100, 180]
 
-  const handleSubmit = (points: number) => {
+  const handleSubmit = (points: number, darts?: number) => {
     if (points < 0 || points > 180) {
       setError('Punkte müssen zwischen 0 und 180 liegen')
       return
@@ -30,7 +31,9 @@ export default function ScoreInput({ onScoreSubmit, maxScore }: ScoreInputProps)
 
     setError('')
     setInputValue('')
-    onScoreSubmit(points)
+    setDartsValue('3')
+    const dartCount = darts || parseInt(dartsValue) || 3
+    onScoreSubmit(points, dartCount)
   }
 
   const handleInputSubmit = (e: React.FormEvent) => {

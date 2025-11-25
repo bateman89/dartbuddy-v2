@@ -14,6 +14,7 @@ interface Team {
 
 interface TeamStats {
   totalThrows: number
+  totalDarts: number
   totalPoints: number
   average: number
 }
@@ -129,7 +130,7 @@ export default function Home() {
     saveToStorage(data)
   }, [teams, activeTeamId, gameHistory, gameWinner])
 
-  const updateTeamScore = (teamId: number, points: number) => {
+  const updateTeamScore = (teamId: number, points: number, darts: number = 3) => {
     setTeams(prevTeams => {
       const newTeams = prevTeams.map(team => {
         if (team.id === teamId) {
@@ -144,7 +145,7 @@ export default function Home() {
           }
           
           // Füge zur Historie hinzu
-          setGameHistory(prev => [...prev, { teamId, points, newScore }])
+          setGameHistory(prev => [...prev, { teamId, points, newScore, darts }])
           
           return { ...team, score: newScore }
         }
@@ -206,15 +207,17 @@ export default function Home() {
     const teamThrows = history.filter(entry => entry.teamId === teamId)
     
     if (teamThrows.length === 0) {
-      return { totalThrows: 0, totalPoints: 0, average: 0 }
+      return { totalThrows: 0, totalDarts: 0, totalPoints: 0, average: 0 }
     }
 
     const totalPoints = teamThrows.reduce((sum, entry) => sum + entry.points, 0)
+    const totalDarts = teamThrows.reduce((sum, entry) => sum + (entry.darts || 3), 0)
     const totalThrows = teamThrows.length
     const average = totalPoints / totalThrows
 
     return {
       totalThrows,
+      totalDarts,
       totalPoints,
       average: Math.round(average * 100) / 100
     }
@@ -224,15 +227,17 @@ export default function Home() {
     const teamThrows = gameHistory.filter(entry => entry.teamId === teamId)
     
     if (teamThrows.length === 0) {
-      return { totalThrows: 0, totalPoints: 0, average: 0 }
+      return { totalThrows: 0, totalDarts: 0, totalPoints: 0, average: 0 }
     }
 
     const totalPoints = teamThrows.reduce((sum, entry) => sum + entry.points, 0)
+    const totalDarts = teamThrows.reduce((sum, entry) => sum + (entry.darts || 3), 0)
     const totalThrows = teamThrows.length
     const average = totalPoints / totalThrows
 
     return {
       totalThrows,
+      totalDarts,
       totalPoints,
       average: Math.round(average * 100) / 100 // Runde auf 2 Dezimalstellen
     }
@@ -299,8 +304,8 @@ export default function Home() {
         <meta name="format-detection" content="telephone=no" />
       </Head>
       
-      <main className="min-h-screen dart-board p-4">
-        <div className="container mx-auto max-w-4xl">
+      <main className="min-h-screen dart-board px-2">
+        <div className="w-full max-w-none">
           {/* Gewinner Anzeige */}
           {gameWinner && (
             <div className="bg-green-500 text-white p-6 rounded-lg mb-6 text-center">
@@ -344,7 +349,7 @@ export default function Home() {
                     {activeTeam.name} ist am Zug
                   </h3>
                   <ScoreInput
-                    onScoreSubmit={(points) => updateTeamScore(activeTeamId, points)}
+                    onScoreSubmit={(points, darts) => updateTeamScore(activeTeamId, points, darts)}
                     maxScore={activeTeam.score}
                   />
                 </div>
@@ -352,57 +357,36 @@ export default function Home() {
             </div>
 
             {/* Landscape Layout (Querformat - neue Turnierversion) */}
-            <div className="hidden lg:block">
-              <div className="grid grid-cols-12 gap-6 min-h-[80vh]">
-                {/* Linke Seite: Team-Übersicht (4 Spalten) */}
-                <div className="col-span-4 space-y-4">
-                  {teams.map(team => (
-                    <CompactTeamCard
-                      key={team.id}
-                      team={team}
-                      isActive={team.id === activeTeamId && !gameWinner}
-                      onNameChange={(newName) => updateTeamName(team.id, newName)}
-                      stats={calculateTeamStats(team.id)}
-                    />
-                  ))}
+            <div className="hidden lg:block min-h-screen flex flex-col">
+              {/* Oberer Bereich: Team-Karten nebeneinander auf voller Breite */}
+              <div className="grid grid-cols-2 gap-4 px-2 py-4 flex-shrink-0">
+                {teams.map(team => (
+                  <CompactTeamCard
+                    key={team.id}
+                    team={team}
+                    isActive={team.id === activeTeamId && !gameWinner}
+                    onNameChange={(newName) => updateTeamName(team.id, newName)}
+                    stats={calculateTeamStats(team.id)}
+                    gameHistory={gameHistory}
+                  />
+                ))}
+              </div>
 
-                  {/* Spiel-Historie kompakt */}
-                  {gameHistory.length > 0 && (
-                    <div className="bg-gray-800/50 rounded-lg p-4">
-                      <h4 className="text-white font-semibold mb-2 text-center">
-                        Letzte Würfe
-                      </h4>
-                      <div className="space-y-1 max-h-32 overflow-y-auto">
-                        {gameHistory.slice(-5).reverse().map((entry, index) => {
-                          const team = teams.find(t => t.id === entry.teamId)
-                          return (
-                            <div key={index} className="text-xs text-gray-300 flex justify-between">
-                              <span>{team?.name}</span>
-                              <span className="font-semibold">{entry.points}p → {entry.newScore}</span>
-                            </div>
-                          )
-                        })}
-                      </div>
+              {/* Unterer Bereich: Vollflächige Punkteeingabe */}
+              <div className="flex-1 px-2 pb-2">
+                {!gameWinner && activeTeam ? (
+                  <NumberPad
+                    onScoreSubmit={(points, darts) => updateTeamScore(activeTeamId, points, darts)}
+                    maxScore={activeTeam.score}
+                    className="w-full"
+                  />
+                ) : (
+                  <div className="w-full bg-gray-800/50 rounded-lg p-8 text-center">
+                    <div className="text-gray-400 text-xl">
+                      {gameWinner ? 'Spiel beendet' : 'Bereit zum Spielen'}
                     </div>
-                  )}
-                </div>
-
-                {/* Rechte Seite: Große Nummerntastatur (8 Spalten) */}
-                <div className="col-span-8 flex items-start">
-                  {!gameWinner && activeTeam ? (
-                    <NumberPad
-                      onScoreSubmit={(points) => updateTeamScore(activeTeamId, points)}
-                      maxScore={activeTeam.score}
-                      className="w-full"
-                    />
-                  ) : (
-                    <div className="w-full bg-gray-800/50 rounded-lg p-8 text-center">
-                      <div className="text-gray-400 text-xl">
-                        {gameWinner ? 'Spiel beendet' : 'Bereit zum Spielen'}
-                      </div>
-                    </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -451,29 +435,7 @@ export default function Home() {
             </div>
           )}
 
-          {/* Spiel Historie (letzte 5 Würfe) */}
-          {gameHistory.length > 0 && (
-            <div className="bg-white/5 backdrop-blur-sm rounded-lg p-6 mt-6">
-              <h3 className="text-white text-lg font-semibold mb-4">
-                Letzte Würfe
-              </h3>
-              <div className="space-y-2">
-                {gameHistory.slice(-5).reverse().map((entry, index) => {
-                  const team = teams.find(t => t.id === entry.teamId)
-                  return (
-                    <div key={index} className="text-gray-300 text-sm flex justify-between">
-                      <span>{team?.name}: -{entry.points} Punkte → {entry.newScore}</span>
-                      {entry.darts && (
-                        <span className="text-yellow-400 font-semibold">
-                          🎯 {entry.darts} Dart{entry.darts !== 1 ? 's' : ''}
-                        </span>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          )}
+
 
           {/* Spielhistorie */}
           {gameResults.length > 0 && (
