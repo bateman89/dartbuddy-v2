@@ -65,80 +65,21 @@ export default function NumberPad({ onScoreSubmit, maxScore, className = '' }: N
   }
 
   return (
-    <div className={`bg-gray-800/50 rounded-lg p-6 ${className}`}>
-      {/* Display */}
-      <div className="mb-4">
-        <div className="bg-gray-900 rounded-lg p-4 text-center">
-          <div className="text-4xl font-bold text-white mb-2">
-            {currentValue || '0'}
-          </div>
-          <div className="text-sm text-gray-400">
-            Max: {maxScore} Punkte
-          </div>
-        </div>
-        {error && (
-          <div className="mt-3 p-3 bg-red-500 text-white rounded-lg text-center font-medium">
-            {error}
-          </div>
-        )}
-      </div>
-
-      {/* Nummer-Pad */}
-      <div className="grid grid-cols-3 gap-3 mb-4">
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
-          <button
-            key={num}
-            onClick={() => handleNumberClick(num)}
-            className="bg-blue-600 hover:bg-blue-700 text-white text-2xl font-bold py-4 rounded-lg transition-colors active:bg-blue-800"
-          >
-            {num}
-          </button>
-        ))}
+    <div className={`bg-gray-800/50 rounded-lg p-4 ${className}`}>
+      {/* Main Layout: Left Quick Scores | Center NumPad | Right Quick Scores */}
+      <div className="grid grid-cols-12 gap-4 items-start">
         
-        {/* Unterste Reihe */}
-        <button
-          onClick={handleClear}
-          className="bg-red-600 hover:bg-red-700 text-white text-lg font-bold py-4 rounded-lg transition-colors"
-        >
-          C
-        </button>
-        
-        <button
-          onClick={() => handleNumberClick(0)}
-          className="bg-blue-600 hover:bg-blue-700 text-white text-2xl font-bold py-4 rounded-lg transition-colors active:bg-blue-800"
-        >
-          0
-        </button>
-        
-        <button
-          onClick={handleBackspace}
-          className="bg-orange-600 hover:bg-orange-700 text-white text-lg font-bold py-4 rounded-lg transition-colors"
-        >
-          ⌫
-        </button>
-      </div>
-
-      {/* Submit Button */}
-      <button
-        onClick={() => handleSubmit()}
-        disabled={!currentValue || parseInt(currentValue) === 0}
-        className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white text-xl font-bold py-4 rounded-lg transition-colors mb-4"
-      >
-        Punkte eingeben
-      </button>
-
-      {/* Quick Score Buttons */}
-      <div>
-        <div className="text-center text-white text-sm font-medium mb-3">
-          Häufige Werte:
-        </div>
-        <div className="grid grid-cols-4 gap-2 mb-2">
+        {/* Linke Seite: Hohe Werte */}
+        <div className="col-span-3 space-y-2">
+          <div className="text-center text-white text-xs font-medium mb-2">
+            Hohe Werte
+          </div>
           {quickScores.high.map(score => (
             <button
               key={score}
               onClick={() => handleSubmit(score)}
               disabled={score > maxScore}
-              className={`py-5 px-2 rounded-lg font-black text-xl transition-all ${
+              className={`w-full py-4 px-2 rounded-lg font-black text-lg transition-all ${
                 score > maxScore
                   ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
                   : 'bg-gray-700 hover:bg-gray-600 text-white active:bg-gray-500'
@@ -147,14 +88,12 @@ export default function NumberPad({ onScoreSubmit, maxScore, className = '' }: N
               {score}
             </button>
           ))}
-        </div>
-        <div className="grid grid-cols-3 gap-2 mb-2">
           {quickScores.mid.map(score => (
             <button
               key={score}
               onClick={() => handleSubmit(score)}
               disabled={score > maxScore}
-              className={`py-5 px-2 rounded-lg font-black text-xl transition-all ${
+              className={`w-full py-4 px-2 rounded-lg font-black text-lg transition-all ${
                 score > maxScore
                   ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
                   : 'bg-gray-700 hover:bg-gray-600 text-white active:bg-gray-500'
@@ -164,13 +103,89 @@ export default function NumberPad({ onScoreSubmit, maxScore, className = '' }: N
             </button>
           ))}
         </div>
-        <div className="grid grid-cols-5 gap-2">
+
+        {/* Mitte: Numpad */}
+        <div className="col-span-6">
+          {/* Spacer um NumPad auf gleiche Höhe zu bringen */}
+          <div className="text-center text-white text-xs font-medium mb-2 opacity-0">
+            Spacer
+          </div>
+          
+          {/* Display */}
+          <div className="mb-4">
+            <div className="bg-black/30 rounded-lg p-4 text-center border border-gray-600">
+              <div className="text-4xl font-bold text-white mb-2">
+                {currentValue || '0'}
+              </div>
+              <div className="text-sm text-gray-400">
+                Max: {maxScore} Punkte
+              </div>
+            </div>
+            {error && (
+              <div className="mt-3 p-3 bg-red-500 text-white rounded-lg text-center font-medium">
+                {error}
+              </div>
+            )}
+          </div>
+
+          {/* Number Grid (1-9) */}
+          <div className="grid grid-cols-3 gap-2 mb-3">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+              <button
+                key={num}
+                onClick={() => handleNumberClick(num)}
+                className="bg-gray-600 hover:bg-gray-500 border border-gray-500 text-white text-xl font-bold py-4 rounded-lg transition-colors active:bg-gray-400"
+              >
+                {num}
+              </button>
+            ))}
+          </div>
+
+          {/* Bottom Row (Clear, 0, Backspace) */}
+          <div className="grid grid-cols-3 gap-2 mb-3">
+            <button
+              onClick={handleClear}
+              className="bg-yellow-400 hover:bg-yellow-500 text-black text-sm font-bold py-3 rounded-lg transition-colors border border-yellow-400"
+            >
+              C
+            </button>
+            
+            <button
+              onClick={() => handleNumberClick(0)}
+              className="bg-gray-600 hover:bg-gray-500 border border-gray-500 text-white text-xl font-bold py-3 rounded-lg transition-colors active:bg-gray-400"
+            >
+              0
+            </button>
+            
+            <button
+              onClick={handleBackspace}
+              className="bg-yellow-400 hover:bg-yellow-500 text-black text-sm font-bold py-3 rounded-lg transition-colors border border-yellow-400"
+            >
+              ⌫
+            </button>
+          </div>
+
+          {/* Submit Button */}
+          <button
+            onClick={() => handleSubmit()}
+            disabled={!currentValue || parseInt(currentValue) === 0}
+            className="w-full bg-gray-600 hover:bg-gray-500 disabled:bg-gray-700 disabled:cursor-not-allowed border border-gray-500 text-white text-lg font-bold py-3 rounded-lg transition-colors"
+          >
+            Punkte eingeben
+          </button>
+        </div>
+
+        {/* Rechte Seite: Singles + Special */}
+        <div className="col-span-3 space-y-2">
+          <div className="text-center text-white text-xs font-medium mb-2">
+            Singles
+          </div>
           {quickScores.singles.map(score => (
             <button
               key={score}
               onClick={() => handleSubmit(score)}
               disabled={score > maxScore}
-              className={`py-5 px-2 rounded-lg font-black text-xl transition-all ${
+              className={`w-full py-4 px-2 rounded-lg font-black text-lg transition-all ${
                 score > maxScore
                   ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
                   : 'bg-gray-700 hover:bg-gray-600 text-white active:bg-gray-500'
@@ -179,28 +194,26 @@ export default function NumberPad({ onScoreSubmit, maxScore, className = '' }: N
               {score}
             </button>
           ))}
+          
+          {/* Special Buttons */}
+          <button
+            onClick={() => handleSubmit(0)}
+            className="w-full bg-black/30 hover:bg-black/40 border border-gray-600 text-white py-3 rounded-lg font-semibold text-sm transition-colors"
+          >
+            Miss (0)
+          </button>
+          <button
+            onClick={() => handleSubmit(maxScore)}
+            disabled={maxScore > 180}
+            className={`w-full py-3 rounded-lg font-semibold text-sm transition-colors ${
+              maxScore > 180
+                ? 'bg-gray-600 text-gray-400 cursor-not-allowed border border-gray-600'
+                : 'bg-yellow-400 hover:bg-yellow-500 text-black border border-yellow-400'
+            }`}
+          >
+            Finish ({maxScore})
+          </button>
         </div>
-      </div>
-
-      {/* Special Buttons */}
-      <div className="grid grid-cols-2 gap-3 mt-4">
-        <button
-          onClick={() => handleSubmit(0)}
-          className="bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg font-semibold"
-        >
-          Miss (0)
-        </button>
-        <button
-          onClick={() => handleSubmit(maxScore)}
-          disabled={maxScore > 180}
-          className={`py-3 rounded-lg font-semibold ${
-            maxScore > 180
-              ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-              : 'bg-yellow-600 hover:bg-yellow-700 text-white'
-          }`}
-        >
-          Finish ({maxScore})
-        </button>
       </div>
     </div>
   )

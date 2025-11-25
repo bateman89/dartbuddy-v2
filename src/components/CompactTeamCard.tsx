@@ -20,6 +20,7 @@ interface CompactTeamCardProps {
   stats: TeamStats
   gameHistory: Array<{teamId: number, points: number, newScore: number, darts?: number}>
   className?: string
+  onUndo?: () => void
 }
 
 export default function CompactTeamCard({ 
@@ -28,7 +29,8 @@ export default function CompactTeamCard({
   onNameChange, 
   stats, 
   gameHistory,
-  className = '' 
+  className = '',
+  onUndo
 }: CompactTeamCardProps) {
   const [isEditingName, setIsEditingName] = useState(false)
   const [tempName, setTempName] = useState(team.name)
@@ -81,56 +83,68 @@ export default function CompactTeamCard({
 
       </div>
 
-      {/* Score-Anzeige und Historie nebeneinander */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        {/* Linke Seite: Score-Anzeige */}
-        <div className="text-center bg-black/30 rounded-lg py-4">
-          <div className="text-6xl font-black text-white mb-1 leading-none tracking-tight drop-shadow-lg">
-            {team.score}
+      {/* Score und Historie nebeneinander */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* Linke Seite: Score und Statistiken vertikal */}
+        <div className="space-y-4">
+          {/* Prominente Score-Anzeige */}
+          <div className="text-center bg-black/30 rounded-lg py-6">
+            <div className="text-9xl font-black text-white mb-2 leading-none tracking-tight drop-shadow-lg">
+              {team.score}
+            </div>
+            <div className="text-white text-sm font-semibold">
+              Punkte verbleibend
+            </div>
           </div>
-          <div className="text-white text-xs font-semibold">
-            Punkte verbleibend
-          </div>
-        </div>
 
-        {/* Rechte Seite: Statistiken und Historie vertikal */}
-        <div className="space-y-2 flex flex-col">
-          {/* Kompakte Statistiken oben */}
+          {/* Kompakte Statistiken darunter */}
           {stats.totalThrows > 0 && (
-            <div className="bg-black/30 rounded-lg p-2 border border-gray-600">
+            <div className="bg-black/30 rounded-lg p-3 border border-gray-600">
               <div className="grid grid-cols-3 gap-1 text-center">
                 <div>
-                  <div className="font-black text-blue-300 text-sm">{stats.totalDarts}</div>
+                  <div className="font-black text-blue-300 text-lg">{stats.totalDarts}</div>
                   <div className="text-white text-xs font-semibold">Darts</div>
                 </div>
                 <div>
-                  <div className="font-black text-green-300 text-sm">{stats.totalPoints}</div>
+                  <div className="font-black text-green-300 text-lg">{stats.totalPoints}</div>
                   <div className="text-white text-xs font-semibold">Punkte</div>
                 </div>
                 <div>
-                  <div className="font-black text-yellow-300 text-sm">{stats.average}</div>
+                  <div className="font-black text-yellow-300 text-lg">{stats.average}</div>
                   <div className="text-white text-xs font-semibold">AVG</div>
                 </div>
               </div>
             </div>
           )}
-          
-          {/* Wurf-Historie unten */}
-          <div className="bg-black/30 rounded-lg p-3 border border-gray-600 flex-1">
-            <h5 className="text-white text-xs font-semibold mb-2 text-center">Letzte Würfe</h5>
-            <div className="space-y-1">
-              {gameHistory.filter(entry => entry.teamId === team.id).length > 0 ? (
-                gameHistory.filter(entry => entry.teamId === team.id).slice(-8).map((entry, index) => (
-                  <div key={index} className="text-gray-300 text-xs bg-black/20 rounded p-1 text-center">
-                    <span className="font-bold text-blue-200">{entry.points}</span>
-                  </div>
-                ))
-              ) : (
-                <div className="text-gray-500 text-xs text-center italic py-2">
-                  Noch keine Würfe
-                </div>
-              )}
+
+          {/* Korrektur Button - nur so breit wie der Text, in gelb */}
+          {onUndo && (
+            <div className="flex justify-center">
+              <button
+                onClick={onUndo}
+                className="bg-yellow-400 hover:bg-yellow-500 text-black text-xs font-semibold py-1 px-3 rounded-md transition-colors inline-flex items-center gap-1"
+              >
+                ↶ Korrigieren
+              </button>
             </div>
+          )}
+        </div>
+        
+        {/* Rechte Seite: Wurf-Historie - volle Höhe */}
+        <div className="bg-black/30 rounded-lg p-3 border border-gray-600 flex flex-col">
+          <h5 className="text-white text-xs font-semibold mb-2 text-center">Letzte Würfe</h5>
+          <div className="space-y-1 flex-1 overflow-y-auto">
+            {gameHistory.filter(entry => entry.teamId === team.id).length > 0 ? (
+              gameHistory.filter(entry => entry.teamId === team.id).slice(-10).map((entry, index) => (
+                <div key={index} className="text-gray-300 text-xs bg-black/20 rounded p-1 text-center">
+                  <span className="font-bold text-blue-200">{entry.points}</span>
+                </div>
+              ))
+            ) : (
+              <div className="text-gray-500 text-xs text-center italic py-2">
+                Noch keine Würfe
+              </div>
+            )}
           </div>
         </div>
       </div>

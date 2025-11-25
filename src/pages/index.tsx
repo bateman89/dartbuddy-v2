@@ -243,6 +243,41 @@ export default function Home() {
     }
   }
 
+  const switchActiveTeam = () => {
+    if (!gameWinner) {
+      setActiveTeamId(prevId => prevId === 1 ? 2 : 1)
+    }
+  }
+
+  const undoLastThrow = () => {
+    if (gameHistory.length === 0) return
+    
+    const lastThrow = gameHistory[gameHistory.length - 1]
+    
+    // Entferne den letzten Wurf aus der Historie
+    setGameHistory(prev => prev.slice(0, -1))
+    
+    // Stelle den Score des Teams wieder her
+    setTeams(prevTeams => 
+      prevTeams.map(team => {
+        if (team.id === lastThrow.teamId) {
+          return { ...team, score: team.score + lastThrow.points }
+        }
+        return team
+      })
+    )
+    
+    // Wechsle zurück zum Team das den korrigierten Wurf gemacht hat
+    setActiveTeamId(lastThrow.teamId)
+    
+    // Falls das Spiel als beendet markiert war, setze es zurück
+    if (gameWinner) {
+      setGameWinner(null)
+      setFinishingTeam(null)
+      setShowDartModal(false)
+    }
+  }
+
   const resetGame = () => {
     const data = loadFromStorage()
     const savedTeamNames = data.settings.teamNames
@@ -368,9 +403,24 @@ export default function Home() {
                     onNameChange={(newName) => updateTeamName(team.id, newName)}
                     stats={calculateTeamStats(team.id)}
                     gameHistory={gameHistory}
+                    onUndo={gameHistory.length > 0 ? undoLastThrow : undefined}
                   />
                 ))}
               </div>
+
+              {/* Anwurf-Wechsel Button - nur vor dem ersten Wurf */}
+              {!gameWinner && gameHistory.length === 0 && (
+                <div className="px-2 pb-2">
+                  <button
+                    onClick={switchActiveTeam}
+                    className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded-lg transition-colors border border-yellow-400"
+                  >
+                    Anwurf wechseln → {teams.find(t => t.id !== activeTeamId)?.name}
+                  </button>
+                </div>
+              )}
+
+
 
               {/* Unterer Bereich: Vollflächige Punkteeingabe */}
               <div className="flex-1 px-2 pb-2">
