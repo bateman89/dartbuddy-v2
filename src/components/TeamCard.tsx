@@ -8,6 +8,7 @@ interface Team {
 
 interface TeamStats {
   totalThrows: number
+  totalDarts: number
   totalPoints: number
   average: number
 }
